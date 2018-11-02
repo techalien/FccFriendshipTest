@@ -4,8 +4,7 @@ import { Link } from 'gatsby'
 import Layout from '../components/layout'
 import Image from '../components/image'
 
-import faunadb, { query as q } from "faunadb"
-import FaunaLink from '../components/faunalink'
+import FaunaLink from '../components/faunalink/FaunaLink.jsx'
 
 
 const IndexPage = () => (

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import faunadb, { query as q } from "faunadb";
-import FAUNA_SECRET from '../../constants';
+import {FAUNA_SECRET} from '../../constants';
 
 var client = {};
 
