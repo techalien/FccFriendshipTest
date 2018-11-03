@@ -1,15 +1,46 @@
 import React, { Component } from 'react';
 import faunadb, { query as q } from "faunadb";
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import CloudUploadIcon from '@material-ui/core/Icon';
 
 const FAUNA_SECRET = "fnAC-5___YACBQKbu91CfAcKoeYCYxO6_WX1mS29";
+
+const buttonStyle = {
+    verticalAlign: 'middle',
+    alignItems: 'center'
+};
 
 function LandingPage(props) {
     if(props.render) {
         return (
             <div>
-                <button onClick={props.createGameHandler}>Create Game</button><br/>
-                <input type="text" onChange={props.joinText} />
-                <button onClick={props.joinGameHandler}>Join Game</button>
+                <Paper>
+                <Grid container spacing={24}>
+                    <Grid item xs>
+                        <Button variant="contained" color="primary" onClick={props.createGameHandler}>Create Game</Button>
+                    </Grid>
+
+                    <Grid item xs={8}>
+                        <TextField
+                            label="Game ID"
+                            helperText="Enter ID here"
+                            margin="normal"
+                            variant="outlined"
+                            onChange={props.joinText}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">
+                                <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Join</Button>
+                                </InputAdornment>
+                            }}
+                        />
+                    </Grid>
+                </Grid>
+                </Paper>
             </div>
         );
     } else {
@@ -21,15 +52,15 @@ function PlayerWait(props) {
     let countDownTimer = null;
 
     if(props.gameStart) {
-        countDownTimer = <span>{props.countDown} seconds remaining.</span> 
+        countDownTimer = <LinearProgress variant="determinate" value={((props.countDown)/60)*100} /> 
     }
 
     if(props.isWaiting) {
         return (
-            <div>
-                <span>Waiting for player response {props.customMessage}</span>
+            <Paper>
+                <h5>Waiting for player response {props.customMessage}</h5>
                 {countDownTimer}
-            </div>
+            </Paper>
         );
     } else {
         return null;
@@ -39,12 +70,29 @@ function PlayerWait(props) {
 function PlayerResponse(props) {
     if(props.isTurn) {
         return (
-            <div>
-                <span>Word given to you is {props.word}</span><br/>
-                <input type="text" onChange={props.textChange} />
-                <button onClick={props.responseHandler}>Submit!</button><br/>
+            <Paper>
+                <Grid container>
+                    <span>Word given to you is {props.word}</span>
+                </Grid>
+                <Grid container>
+                <TextField
+                    label="Word"
+                    helperText="Enter your response here"
+                    margin="normal"
+                    variant="outlined"
+                    onChange={props.textChange}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                        <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
+                            Submit
+                        </Button>
+                        </InputAdornment>
+                    }}
+                />
+                </Grid>
                 <span>You have {props.countDown} seconds remaining.</span>
-            </div>
+                <LinearProgress variant="determinate" value={((props.countDown)/60)*100} /> 
+            </Paper>
         );
     } else {
         return null;
