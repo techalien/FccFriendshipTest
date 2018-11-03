@@ -20,7 +20,7 @@ function LandingPage(props) {
 function PlayerWait(props) {
     if(props.isWaiting) {
         return (
-            <span>Waiting for player response</span>
+            <span>Waiting for player response {props.customMessage}</span>
         );
     } else {
         return null;
@@ -92,6 +92,7 @@ class WordGame extends React.Component {
                 let updatedTurn = refObject.data.turn;
                 console.log(updatedTurn);
                 if(updatedTurn == turn) {
+                    this.waitMessage = "";
                     clearInterval(this.poller);
                     this.setState({word: refObject.data.word, isWaiting: false, currentTurn: true});
                 } else if (refObject.data.gameWon) {
@@ -118,6 +119,7 @@ class WordGame extends React.Component {
         ).then((refObject) => {
             console.log("Game ID Created: " + refObject.ref.value.id);
 
+            this.waitMessage = "Ask friend to join at " + refObject.ref.value.id;
             this.setState({gameRef: refObject.ref.value.id, isLandingPage: false, turnMod:0, isWaiting:true});
             this.poller = setInterval(
                 () => this.checkForUpdate(),
@@ -156,7 +158,8 @@ class WordGame extends React.Component {
                     joinGameHandler={this.joinGame} 
                     joinText={this.joinGameRefInputHandler}/>
                 <PlayerWait
-                    isWaiting = {this.state.isWaiting}/>
+                    isWaiting = {this.state.isWaiting}
+                    customMessage = {this.waitMessage}/>
                 <PlayerResponse
                     isTurn = {this.state.currentTurn} 
                     word={this.state.word}
