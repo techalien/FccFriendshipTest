@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "author": "FCC Friendly Questions team",
   "dependencies": {
+    "@material-ui/core": "^3.3.2",
+    "@material-ui/icons": "^3.0.1",
     "faunadb": "^2.5.2",
     "gatsby": "^2.0.38",
     "gatsby-cli": "^2.4.4",
@@ -12,7 +14,7 @@
     "gatsby-plugin-manifest": "^2.0.5",
     "gatsby-plugin-offline": "^2.0.5",
     "gatsby-plugin-react-helmet": "^3.0.0",
-    "gatsby-plugin-sharp": "^2.0.7",
+    "gatsby-plugin-sharp": "^2.0.11",
     "gatsby-react-router-scroll": "^2.0.1",
     "gatsby-source-filesystem": "^2.0.4",
     "gatsby-transformer-sharp": "^2.1.4",

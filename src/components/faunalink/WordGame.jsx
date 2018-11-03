@@ -10,7 +10,6 @@ function LandingPage(props) {
                 <button onClick={props.createGameHandler}>Create Game</button><br/>
                 <input type="text" onChange={props.joinText} />
                 <button onClick={props.joinGameHandler}>Join Game</button>
-                <span>timer {props.countDown}</span>
             </div>
         );
     } else {
@@ -223,8 +222,7 @@ class WordGame extends React.Component {
                     render={this.state.isLandingPage} 
                     createGameHandler={this.createGame} 
                     joinGameHandler={this.joinGame} 
-                    joinText={this.joinGameRefInputHandler}
-                    countDown={this.state.countDown}/>
+                    joinText={this.joinGameRefInputHandler}/>
                 <PlayerWait
                     isWaiting = {this.state.isWaiting}
                     customMessage = {this.waitMessage}
