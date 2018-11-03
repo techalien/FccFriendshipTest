@@ -7,11 +7,11 @@ var client={};
 class ChangingQuestions extends React.Component {
     constructor(props) {
         super(props);
-        this.questionList = ["question1-your age?","question2-do you like books","question3-do you like dogs","question4 - how much do you like to study","your name is","Send the challenge to (email)?"];
+        this.questionList = [["question1-your age?","question2-do you like books",100],["question3-do you like dogs",["yes","no"]],["question4 - how much do you like to study",["a lot","so and so","not at all"]],["your name is","FriendA"],["Send the challenge to (email)?","testmail@yahoo.com"]];
         /* this.questionList = props.questionList; */
         this.answerList = [];
         this.handleClick = this.handleClick.bind(this);
-        this.state = {currentAnswer: "", currentQuestion: this.questionList[0], counter: 0};
+        this.state = {currentAnswer: "", currentQuestion: this.questionList[0][0], counter: 0};
         
         this.addFriend = this.addFriend.bind(this);
         this.getFriendByRef = this.getFriendByRef.bind(this);
@@ -25,7 +25,7 @@ class ChangingQuestions extends React.Component {
         handleClick(e) {
           //this.answerList.add(this.state.currentAnswer);
           this.setState((state, props) => ({
-              currentQuestion: this.questionList[state.counter + 1],
+              currentQuestion: this.questionList[state.counter + 1][0],
               counter: state.counter + 1
           }));
       }
