@@ -5,6 +5,7 @@ import Layout from '../components/layout'
 import Image from '../components/image'
 
 import FaunaLink from '../components/faunalink/FaunaLink.jsx'
+import ChangingQuestions from '../components/changingQuestions/ChangingQuestions.jsx'
 
 
 const IndexPage = () => (
@@ -14,7 +15,8 @@ const IndexPage = () => (
     <p>JAMstack Hackathon's friendliest project!</p>
     <div style={{ maxWidth: '300px', marginBottom: '1.45rem' }}>
 <p>test for fauna connection</p>
-<FaunaLink />
+<ChangingQuestions />
+{/* <FaunaLink /> */}
 
       <Image />
     </div>
