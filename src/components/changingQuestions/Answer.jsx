@@ -3,9 +3,10 @@ import React, { Component } from 'react';
 class Answer extends React.Component{
     constructor(props){
         super(props);
-        this.setState={
+        this.state={answerToShow:""}
+        /* this.setState={
             answerToShow:""
-        }
+        } */
     }
     
     componentDidMount(){
@@ -13,7 +14,7 @@ class Answer extends React.Component{
         console.log("answerFromProp",this.props.prop);
         if (answerFromProp==100) {
             this.setState((state, props) => ({
-                answerToShow:`<h1>THIS IS IT {answerFromProp}</h1>`,
+                answerToShow:`<h1>THIS IS IT ${answerFromProp}</h1>`,
             }));
         }
     }
