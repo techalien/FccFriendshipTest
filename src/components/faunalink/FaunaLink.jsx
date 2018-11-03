@@ -99,10 +99,28 @@ class FaunaLink extends React.Component {
         client = new faunadb.Client({ secret: FAUNA_SECRET});
         e.preventDefault();
         console.log("compare func");
+        let allRefs=[];
+        let answersA={};//answers friend A
         let identical=false;
-        let responseRef="214896159631606277";
+        let responseRef="214905968405774853";
         let originalRef="214896159631606277";
         let countCorrectAns=0;
+        var p1 = new Promise( (resolve, reject) => {
+            resolve(client.query(
+                q.Paginate(q.Match(q.Index("all_friends"))))
+                .then((ret) => ret.data.forEach(function (index) {
+                    allRefs.push(index.id);
+                   console.log(index.id);
+                })).then(console.log("allRefs",allRefs)).then(function(){console.log("test",allRefs.includes(responseRef))}));
+            // or
+            // reject ("Error!");
+          } );
+
+
+        
+            p1.then(function(){if (allRefs.includes(responseRef)) {
+                client.query(q.Get(q.Ref(q.Class("friends"), responseRef))).then((ret) => {answersA = ret.data;console.log(answersA)});}
+            });
         console.log("number of correct answers:",countCorrectAns);
         document.getElementById("compare").innerHTML=identical;
     }
