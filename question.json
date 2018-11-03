@@ -1,0 +1,34 @@
+{ "questions" :[{
+  "q": "Would you rather have a cat or a dog?",
+  "a1": "Cat",
+  "a2": "Dog",
+  "a3":"Can't handle pets"
+  },
+  {
+     "q": "This is the one wish that creates the perfect life for you:",
+    "a1" :"Ultimate Snacks",
+    "a2" :"True Love",
+    "a3" :"$$$$"
+  } ,
+  {
+  "q": "",
+    "a1" :"",
+    "a2" :"",
+    "a3" : ""
+  }
+  ,
+  {
+  "q": "",
+    "a1" :"",
+    "a2" :"",
+    "a3" : ""
+  }
+  ,
+  {
+  "q": "",
+    "a1" :"",
+    "a2" :"",
+    "a3" : ""
+  }
+  ]
+  }
