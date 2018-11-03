@@ -14,6 +14,7 @@ class FaunaLink extends React.Component {
         this.getAllFriends = this.getAllFriends.bind(this);
         this.deleteOneFriend = this.deleteOneFriend.bind(this);
         this.compareTwoFriends = this.compareTwoFriends.bind(this);
+        this.updateRecord = this.updateRecord.bind(this);
         //this.insertManyPosts = this.insertManyPosts.bind(this);
         //this.deleteAllPosts = this.deleteAllPosts.bind(this);
 
@@ -66,7 +67,7 @@ class FaunaLink extends React.Component {
         client.query(q.Get(q.Ref(q.Class("friends"), idRef))).then((ret) => document.getElementById("getByRef").innerHTML = ret.data.name);
     }
 
-    getFriendByName(e) {
+    getFriendByName(e) {  //not working
         client = new faunadb.Client({ secret: FAUNA_SECRET});
         e.preventDefault();
         console.log("getFriendByName func");
@@ -112,17 +113,27 @@ class FaunaLink extends React.Component {
                     allRefs.push(index.id);
                    console.log(index.id);
                 })).then(console.log("allRefs",allRefs)).then(function(){console.log("test",allRefs.includes(responseRef))}));
-            // or
-            // reject ("Error!");
-          } );
-
-
-        
-            p1.then(function(){if (allRefs.includes(responseRef)) {
+             //or
+             //reject ("Can't get list of instances from the database");
+        });
+        p1.then(function(){if (allRefs.includes(responseRef)) {
                 client.query(q.Get(q.Ref(q.Class("friends"), responseRef))).then((ret) => {answersA = ret.data;console.log(answersA)});}
-            });
+        });
         console.log("number of correct answers:",countCorrectAns);
         document.getElementById("compare").innerHTML=identical;
+    }
+
+    updateRecord(e){
+        client = new faunadb.Client({ secret: FAUNA_SECRET});
+        e.preventDefault();
+        console.log("updateRecord func");
+        let idRef="214905968405774853";
+        client.query(
+            q.Update(
+              q.Ref(q.Class("friends"), idRef),
+              { data: { question1: "how young is ion?" } }))
+          .then((ret) => console.log(ret))
+
     }
 
 
@@ -178,6 +189,9 @@ class FaunaLink extends React.Component {
             <p id="getByRef"></p>,
             <button onClick={this.getFriendByName}>Get friend by name</button>,
             <p id="getByName"></p>,
+            <br />,
+            <button onClick={this.updateRecord}>Update friend</button>,
+            <p id="updateFriend"></p>,
             <br />,
             <button onClick={this.deleteOneFriend}>Delete one friend</button>,
             <p id="deleteOneFriend"></p>,
