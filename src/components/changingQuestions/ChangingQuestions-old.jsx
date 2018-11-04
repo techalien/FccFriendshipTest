@@ -8,7 +8,7 @@ var client = {};
 class ChangingQuestions extends React.Component {
   constructor(props) {
     super(props);
-    /* this.questionList = [["If you were invited by a friend, ty"]["question1-your age?",100],["question2-do you like books",["yes","no"]],["question3-do you like dogs",["yes","no"]],["question4 - how much do you like to study",["a lot","so and so","not at all"]],["your name is","FriendA"],["Send the challenge to (email)?","testmail@yahoo.com"]]; */
+    /* this.questionList = [["question1-your age?",100],["question2-do you like books",["yes","no"]],["question3-do you like dogs",["yes","no"]],["question4 - how much do you like to study",["a lot","so and so","not at all"]],["your name is","FriendA"],["Send the challenge to (email)?","testmail@yahoo.com"]]; */
     this.questionList = [["question2-do you like books", ["yes", "no", "maybe"]], ["question1-your age?", 100], ["question3-do you like dogs", ["yes", "no"]], ["question4 - how much do you like to study", ["a lot", "so and so", "not at all"]], ["your name is", "FriendA"], ["Send the challenge to (email)?", "testmail@nonexistant.com"]];
     /* this.questionList = props.questionList; */
     this.answerList = [];
