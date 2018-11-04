@@ -1,227 +1,293 @@
 import React, { Component } from 'react';
 import faunadb, { query as q } from "faunadb";
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import CloudUploadIcon from '@material-ui/core/Icon';
+
 import { FAUNA_SECRET } from '../../constants';
-import Answer from './Answer';
 
 var client = {};
 
-class ChangingQuestions extends React.Component {
-  constructor(props) {
-    super(props);
-    /* this.questionList = [["If you were invited by a friend, ty"]["question1-your age?",100],["question2-do you like books",["yes","no"]],["question3-do you like dogs",["yes","no"]],["question4 - how much do you like to study",["a lot","so and so","not at all"]],["your name is","FriendA"],["Send the challenge to (email)?","testmail@yahoo.com"]]; */
-    this.questionList = [["question2-do you like books", ["yes", "no", "maybe"]], ["question1-your age?", 100], ["question3-do you like dogs", ["yes", "no"]], ["question4 - how much do you like to study", ["a lot", "so and so", "not at all"]], ["your name is", "FriendA"], ["Send the challenge to (email)?", "testmail@nonexistant.com"]];
-    /* this.questionList = props.questionList; */
-    this.answerList = [];
-    this.handleClick = this.handleClick.bind(this);
-    this.state = { currentAnswer: this.questionList[0][1], currentQuestion: this.questionList[0][0], counter: 0 };
-    this.handleClickOnAnswer = this.handleClickOnAnswer.bind(this);
-    this.handleOnInputAnswer = this.handleOnInputAnswer.bind(this);
-    this.addFriend = this.addFriend.bind(this);
-    this.getFriendByRef = this.getFriendByRef.bind(this);
-    this.getFriendByName = this.getFriendByName.bind(this);
-    this.getAllFriends = this.getAllFriends.bind(this);
-    this.deleteOneFriend = this.deleteOneFriend.bind(this);
-    this.compareTwoFriends = this.compareTwoFriends.bind(this);
-    this.updateRecord = this.updateRecord.bind(this);
-  }
+const buttonStyle = {
+    verticalAlign: 'middle',
+    alignItems: 'center'
+};
 
-  handleClick(e) {
-    //this.answerList.add(this.state.currentAnswer);
-    this.setState((state, props) => ({
-      currentQuestion: this.questionList[state.counter + 1][0],
-      currentAnswer: this.questionList[state.counter + 1][1],
-      counter: state.counter + 1
-    }));
-    console.log("currentAnswer in handle click", this.state.currentAnswer);
-    if (this.state.currentAnswer == 100) {
-      this.setState({ [`answer${this.state.counter}`]: 0 });
-    } else if (this.state.currentAnswer == "FriendA") {
-      this.setState({ [`answer${this.state.counter}`]: "" });
-    } else if (this.state.currentAnswer == "testmail@nonexistant.com") {
-      this.setState({ [`answer${this.state.counter}`]: "testmail@nonexistant.com" });
+function LandingPage(props) {
+    if(props.render) {
+        return (
+            <div>
+                <Paper>
+                <Grid container spacing={24}>
+                    <Grid item xs>
+                        <Button variant="contained" color="primary" onClick={props.createGameHandler}>Create Game</Button>
+                    </Grid>
+
+                    <Grid item xs={8}>
+                        <TextField
+                            label="Game ID"
+                            helperText="Enter ID here"
+                            margin="normal"
+                            variant="outlined"
+                            onChange={props.joinText}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">
+                                <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Join</Button>
+                                </InputAdornment>
+                            }}
+                        />
+                    </Grid>
+                </Grid>
+                </Paper>
+            </div>
+        );
     } else {
-      this.setState({ [`answer${this.state.counter}`]: this.state.currentAnswer[0] });
+        return null;
     }
-  }
+}
 
-  handleAnswer() {
-    console.log("state in handleAnswers", this.state);
-  }
+function PlayerWait(props) {
+    let countDownTimer = null;
 
-  //has more usecases (name, email)
-  handleClickOnAnswer = (e) => {
-    //e.preventDefault();
-    console.log("e", e.target);
-    if (e.target.getAttribute("type") !== "number") {
-      this.setState({ [`answer${this.state.counter}`]: e.target.value });
-      console.log("the state in handleClickOnAnswer", this.state);
+    if(props.gameStart) {
+        countDownTimer = <LinearProgress variant="determinate" value={((props.countDown)/60)*100} /> 
     }
-  }
 
-  //not working correctly
-  handleOnInputAnswer = (e) => {
-    e.preventDefault();
-    console.log("e", e.target);
-    if (e.target.getAttribute("type") == "number") {
-      this.setState({ [`answer${this.state.counter}`]: e.target.value });
-      console.log("the state in handleClickOnAnswer", this.state);
+    if(props.isWaiting) {
+        return (
+            <Paper>
+                <h5>Waiting for player response {props.customMessage}</h5>
+                {countDownTimer}
+            </Paper>
+        );
+    } else {
+        return null;
     }
-  }
+}
 
+function PlayerResponse(props) {
+    if(props.isTurn) {
+        return (
+            <Paper>
+                <Grid container>
+                    <span>Word given to you is {props.word}</span>
+                </Grid>
+                <Grid container>
+                <TextField
+                    label="Word"
+                    helperText="Enter your response here"
+                    margin="normal"
+                    variant="outlined"
+                    onChange={props.textChange}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                        <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
+                            Submit
+                        </Button>
+                        </InputAdornment>
+                    }}
+                />
+                </Grid>
+                <span>You have {props.countDown} seconds remaining.</span>
+                <LinearProgress variant="determinate" value={((props.countDown)/60)*100} /> 
+            </Paper>
+        );
+    } else {
+        return null;
+    }
+}
 
+function GameOver(props) {
+    if(props.gameOver) {
+        if(props.gameWon) {
+            return (
+                <span>You won!!! :)</span>
+            );
+        } else {
+            return (
+                <span>You lost. :(</span>
+            );
+        }
+    } else {
+        return null;
+    }
+}
 
-  addFriend(e) {
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    console.log('new friend');
-    let name = "ion" + Math.floor(Math.random() * 1000);
-    let second_name = "secondName" + Math.floor(Math.random() * 1000);
-    let age = Math.floor(Math.random() * 100);
-    client.query(
-      q.Create(
-        q.Class("friends"),
-        {
-          data: {
-            "name": `${name}`,
-            "question1": `how old is ${name} ?`,
-            "answer1": `${age}`,
-            "question2": `where ${name} lives?`,
-            "answer2": `${name}inIsrael`,
-            "email": `${name}@gmail.com`,
-            "second_name": `${second_name}`,
-            "responseRef": ``
-          }
+class ChangingQuestions extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {isLandingPage: true, gameStarted: false, isWaiting:false, countDown: 60};
+        this.createGame = this.createGame.bind(this);
+        this.joinGame = this.joinGame.bind(this);
+        this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
+        this.updateGame = this.updateGame.bind(this);
+        this.responseTextHandler = this.responseTextHandler.bind(this);
+        this.setPoller = this.setPoller.bind(this);
+        this.countDownState = this.countDownState.bind(this);
+        this.endGame = this.endGame.bind(this)
+        this.startCountDown = this.startCountDown.bind(this)
+
+        this.client = new faunadb.Client({secret: FAUNA_SECRET});   
+    }
+
+    setPoller() {
+        this.poller = setInterval(
+            () => this.checkForUpdate(),
+            1000
+        )
+    }
+
+    startCountDown() {
+        this.countDownTimer = setInterval(
+            () => this.countDownState(),
+            1000
+        )
+    }
+
+    countDownState() {
+        console.log("Counting down");
+        this.setState((state, props) => ({
+            countDown: state.countDown - 1,
         }))
-      .then((ret) => console.log(ret))
-  }
+        
+        if(this.state.countDown === 0 && this.state.currentTurn && this.state.gameStarted) {
+            this.endGame()
+        }
+    }
 
+    joinGameRefInputHandler(e) {
+        e.preventDefault();
 
-  deleteOneFriend(e) {
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    console.log("delete one friend func by");
-    client.query(q.Delete(q.Ref(q.Class("friends"), "214898311208894981"))).then((ret) => console.log(ret))
-      .catch((ret) => console.log(ret))
-  }
+        this.setState({gameRef: e.target.value})
+    }
 
-  getFriendByRef(e) {
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    let idRef = "214896159631606277";
-    console.log("getFriendByRef func");
-    client.query(q.Get(q.Ref(q.Class("friends"), idRef))).then((ret) => document.getElementById("getByRef").innerHTML = ret.data.name);
-  }
+    responseTextHandler(e) {
+        e.preventDefault();
+        this.responseWord = e.target.value;
+    }
 
-  getFriendByName(e) {  //not working
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    console.log("getFriendByName func");
+    endGame() {
+        console.log("Ending Game");
 
-    client.query(
-      q.Get(
-        q.Match(q.Index("a1"), "ion")))
-      .then((ret) => console.log("resolve in getFriendByName", ret));
-    /* client.query(
-        q.Get(
-            q.Match(q.Index("all_friends"), "ion")))
-        .then((ret) => document.getElementById("getByName").innerHTML = ret.data); */
-  }
+        this.client.query(
+            q.Update(
+              q.Ref(q.Class("game"), this.state.gameRef),
+              { data: {gameWon: true}}))
+          .then((ret) => console.log(ret))
 
-  getAllFriends(e) {
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    console.log("getAllFriends func");
-    client.query(
-      q.Paginate(q.Match(q.Index("all_friends"))))
-      .then((ret) => ret.data.forEach(function (index) {
-        var p = document.createElement("p");
-        p.innerText = JSON.stringify(index.value);
-        document.getElementById("allFriends").appendChild(p);
-        console.log(index.value);
-      }));
-  }
+          clearInterval(this.countDownTimer)
+          this.setState({gameWon: false, currentTurn: false, gameOver:true});
+    }
 
-  compareTwoFriends(e) {
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    console.log("compare func");
-    let allRefs = [];
-    let answersA = {};//answers friend A
-    let identical = false;
-    let responseRef = "214905968405774853";
-    let originalRef = "214896159631606277";
-    let countCorrectAns = 0;
-    var p1 = new Promise((resolve, reject) => {
-      resolve(client.query(
-        q.Paginate(q.Match(q.Index("all_friends"))))
-        .then((ret) => ret.data.forEach(function (index) {
-          allRefs.push(index.id);
-          console.log(index.id);
-        })).then(console.log("allRefs", allRefs)).then(function () { console.log("test", allRefs.includes(responseRef)) }));
-      //or
-      //reject ("Can't get list of instances from the database");
-    });
-    p1.then(function () {
-      if (allRefs.includes(responseRef)) {
-        client.query(q.Get(q.Ref(q.Class("friends"), responseRef))).then((ret) => { answersA = ret.data; console.log(answersA) });
-      }
-    });
-    console.log("number of correct answers:", countCorrectAns);
-    document.getElementById("compare").innerHTML = identical;
-  }
+    updateGame(e) {
+        console.log("Updating game");
 
-  updateRecord(e) {
-    client = new faunadb.Client({ secret: FAUNA_SECRET });
-    e.preventDefault();
-    console.log("updateRecord func");
-    let idRef = "214905968405774853";
-    client.query(
-      q.Update(
-        q.Ref(q.Class("friends"), idRef),
-        { data: { question1: "how young is ion?" } }))
-      .then((ret) => console.log(ret))
+        this.client.query(
+            q.Update(
+              q.Ref(q.Class("game"), this.state.gameRef),
+              { data: { word: this.responseWord, turn: (this.state.turnMod + 1)%2}}))
+          .then((ret) => console.log(ret))
+        
+        this.setState({countDown: 60});
+        this.setState({currentTurn: false, isWaiting: true})
+        this.setPoller()
+    }
 
-  }
+    checkForUpdate() {
+        let turn = this.state.turnMod;
 
+        console.log("Checking for update");
+        this.client.query(q.Get(q.Ref(
+            q.Class("game"), this.state.gameRef))).then((refObject) => {
+                let updatedTurn = refObject.data.turn;
+                console.log(updatedTurn);
+                if(updatedTurn == turn) {
+                    this.waitMessage = "";
+                    this.setState({countDown:60})
+                    clearInterval(this.poller);
+                    this.setState({gameStarted: true, word: refObject.data.word, isWaiting: false, currentTurn: true});
+                } else if (refObject.data.gameWon) {
+                    clearInterval(this.poller);
+                    clearInterval(this.countDownTimer)
+                    this.setState({gameWon: true, gameOver: true, isWaiting: false})
+                }
+            })
+    }
 
+    createGame(e) {
+        e.preventDefault();
+        console.log("Creating game");
 
+        //let refObject;
+        this.client.query(
+            q.Create(
+                q.Class("game"),
+                {data: {
+                    "turn": 1,
+                    "word": "Start",
+                    "responseRef": "",
+                    "gameStarted": false 
+                }}
+            )
+        ).then((refObject) => {
+            console.log("Game ID Created: " + refObject.ref.value.id);
 
+            this.waitMessage = "Ask friend to join at " + refObject.ref.value.id;
+            this.setState({gameRef: refObject.ref.value.id, isLandingPage: false, turnMod:0, isWaiting:true});
+            //this.setPoller();
+        })
+    }
 
-  render() {
-    return [
-      <br />,
-      <button onClick={this.handleClick}>the question is</button>,
-      <br />,
-      <p id="question"> {this.state.currentQuestion} </p>,
-      <div onClick={this.handleClickOnAnswer} onChange={this.handleOnInputAnswer}>
-        <Answer answerArray={this.state.currentAnswer} answerNo={this.state.counter} />
-      </div>,
-      <h1>Working with fauna database</h1>,
-      <br />,
-      <button onClick={this.addFriend}>create one friend</button>,
-      <br />,
-      <h1>show posts</h1>,
-      <button onClick={this.getFriendByRef}>Get friend by ref</button>,
-      <p id="getByRef"></p>,
-      <button onClick={this.getFriendByName}>Get friend by name</button>,
-      <p id="getByName"></p>,
-      <br />,
-      <button onClick={this.updateRecord}>Update friend</button>,
-      <p id="updateFriend"></p>,
-      <br />,
-      <button onClick={this.deleteOneFriend}>Delete one friend</button>,
-      <p id="deleteOneFriend"></p>,
-      <br />,
-      <button onClick={this.getAllFriends}>Get all friends </button>,
-      <div id="allFriends"></div>,
-      <button onClick={this.compareTwoFriends}>Are the all answers identical?(compare friends)</button>,
-      <p id="compare"></p>,
-      <br />
-    ];
-  }
+    joinGame(e) {
+        e.preventDefault();
+        console.log("Joining game " + this.state.gameRef);
 
+        this.client.query(q.Get(q.Ref(
+            q.Class("game"), this.state.gameRef))).then((refObject) => {
+                if(refObject.ref.value.id === this.state.gameRef) {
+                    this.client.query(
+                        q.Update(
+                          q.Ref(q.Class("game"), this.state.gameRef),
+                          { data: { gameStarted: true, turn: 0} }))
+                      .then((ret) => console.log(ret))
+                    this.setState({gameStarted: true, countDown:60, isLandingPage: false, isWaiting:true, turnMod:1});
+                    this.setPoller();
+                }
+            })
+    }
+    
+    componentDidMount() {
+       // this.startCountDown();
+    }
 
-
+    render() {
+        return (
+            <div>
+                <LandingPage 
+                    render={this.state.isLandingPage} 
+                    createGameHandler={this.createGame} 
+                    joinGameHandler={this.joinGame} 
+                    joinText={this.joinGameRefInputHandler}/>
+                <PlayerWait
+                    isWaiting = {this.state.isWaiting}
+                    customMessage = {this.waitMessage}
+                    gameStart = {this.state.gameStarted}
+                    countDown = {this.state.countDown}/>
+                <PlayerResponse
+                    isTurn = {this.state.currentTurn} 
+                    word={this.state.word}
+                    textChange={this.responseTextHandler}
+                    responseHandler={this.updateGame}
+                    countDown = {this.state.countDown}/>
+                <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon}/>
+            </div>
+        );
+    }
 }
 
 export default ChangingQuestions;
