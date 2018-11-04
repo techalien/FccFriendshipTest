@@ -249,7 +249,7 @@ class ChangingQuestions extends React.Component {
                 { data: { gameWon: true } }))
             .then((ret) => console.log(ret)) */
 
-       this.addFriend(this.answer);
+       this.addFriend();
         this.setState({ gameWon: false, currentTurn: false, gameOver: true,isQuestion:false });
     }
 
@@ -300,9 +300,9 @@ class ChangingQuestions extends React.Component {
         });
     }
 
-    addFriend(e) {
+    addFriend() {
         client = new faunadb.Client({ secret: FAUNA_SECRET });
-        e.preventDefault();
+        //e.preventDefault();
         console.log('new filled quiz');
        
         client.query(
