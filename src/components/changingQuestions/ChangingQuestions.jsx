@@ -132,12 +132,15 @@ class ChangingQuestions extends React.Component {
         this.responseTextHandler = this.responseTextHandler.bind(this);
         this.setPoller = this.setPoller.bind(this);
         this.countDownState = this.countDownState.bind(this);
-        this.endGame = this.endGame.bind(this)
-        this.startCountDown = this.startCountDown.bind(this)
+        this.endGame = this.endGame.bind(this);
+        this.startCountDown = this.startCountDown.bind(this);
+        this.addFriend = this.addFriend.bind(this);
 
         this.client = new faunadb.Client({ secret: FAUNA_SECRET });
+        this.answersA={};
     }
 
+    
     setPoller() {
         this.poller = setInterval(
             () => this.checkForUpdate(),
@@ -251,7 +254,7 @@ class ChangingQuestions extends React.Component {
     joinGame(e) {
         e.preventDefault();
         console.log("Joining game " + this.state.gameRef);
-        let answersA = {};
+        
         var p1 = new Promise((resolve, reject) => {
             this.client.query(q.Get(q.Ref(
                 q.Class("friends"), this.state.gameRef))).then((refObject) => {
@@ -260,15 +263,16 @@ class ChangingQuestions extends React.Component {
                         console.log("good game ID", this.state.gameRef);
                         let id=this.state.gameRef.toString();
                         console.log("ID",id);
-                        answersA=client.query(q.Get(q.Ref(q.Class("friends"), id)));
-                        console.log(answersA);
+                        this.answersA=refObject.data;
+                        /* answersA=client.query(q.Get(q.Ref(q.Class("friends"), "214905968405774853"))); */
+                        console.log(this.answersA);
                     }
                 })
         });
         
         p1.then((ret) => {
             console.log(ret);
-            console.log(answersA);
+            console.log(this.answersA);
             this.setState({ gameStarted: true, countDown: 60, isLandingPage: false, isWaiting: true, turnMod: 1 });
             this.setPoller();});
         }
@@ -293,6 +297,30 @@ class ChangingQuestions extends React.Component {
         })
 */
 
+addFriend(e) {
+    client = new faunadb.Client({ secret: FAUNA_SECRET });
+    e.preventDefault();
+    console.log('new friend');
+    let name = "ion" + Math.floor(Math.random() * 1000);
+    let second_name = "secondName" + Math.floor(Math.random() * 1000);
+    let age = Math.floor(Math.random() * 100);
+    client.query(
+      q.Create(
+        q.Class("friends"),
+        {
+          data: {
+            "name": `${name}`,
+            "question1": `how old is ${name} ?`,
+            "answer1": `${age}`,
+            "question2": `where ${name} lives?`,
+            "answer2": `${name}inIsrael`,
+            "email": `${name}@gmail.com`,
+            "second_name": `${second_name}`,
+            "responseRef": ``
+          }
+        }))
+      .then((ret) => console.log(ret))
+  }
 
 
 
