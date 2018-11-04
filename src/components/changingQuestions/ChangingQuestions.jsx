@@ -143,7 +143,7 @@ function GameOver(props) {
             let score="";
 
             function compare(a,b){
-                for (let i=0;i<totalAnswers;i++){
+                for (let i=2;i<totalAnswers;i++){
                     if (a[i]===b[i]){
                         correctAnswers=correctAnswers+1;
                     }
@@ -152,7 +152,7 @@ function GameOver(props) {
             compare(friendA,friendB);
             return (
                
-                <p>Your knew {correctAnswers} out of {totalAnswers}</p>
+                <p>Your knew {correctAnswers} out of {totalAnswers - 2}</p>
             );
         } else {
             return (
@@ -224,7 +224,7 @@ class ChangingQuestions extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {isLandingPage: true, questionsList: questionList, gameStarted: false, isWaiting: false, countDown: 60, questionNumber: 0, responseWord: "" };
+        this.state = {loading:false,isLandingPage: true, questionsList: questionList, gameStarted: false, questionNumber: 0, responseWord: "" ,gameOver:false,gameWon:false,gameRef:0,answersPl1:{},answersPl2:{}};
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
@@ -287,13 +287,14 @@ class ChangingQuestions extends React.Component {
     createGame(e) {
         e.preventDefault();
         console.log("Creating game");
-        this.setState({ gameRef: 0, isLandingPage: false, turnMod: 0, isWaiting: false, isQuestion: true });
+        this.setState({ gameRef: 0, isLandingPage: false, isQuestion: true });
     }
 
     joinGame(e) {
         e.preventDefault();
         console.log("Joining game " + this.state.gameRef);
-        var p1 = new Promise((resolve, reject) => {
+        
+            this.setState({ loading: true });
             this.client.query(q.Get(q.Ref(
                 q.Class("friends"), this.state.gameRef))).then((refObject) => {
                     console.log(refObject);
@@ -303,13 +304,12 @@ class ChangingQuestions extends React.Component {
                         console.log("ID", id);
                         this.answersA = refObject.data;
                         /* answersA=client.query(q.Get(q.Ref(q.Class("friends"), "214905968405774853"))); */
-                        console.log(this.answersA);
-                        this.setState({  answersPl2:this.answerA,gameWon: true, gameStarted: true, countDown: 60, isLandingPage: false, isWaiting: true, turnMod: 1 });
+                        console.log("first player's answer the second one plays",this.answersA);
+                        this.setState({  loading:false,answersPl2:this.answerA,gameWon: true, gameStarted: false, isLandingPage: true,isQuestion: false });
                         this.createGame(e);
                     }
                 })
-        });
-        p1.then((ret) => {
+        .then((ret) => {
             console.log(ret);
             console.log(this.answersA);
            
@@ -502,11 +502,13 @@ class ChangingQuestions extends React.Component {
                     word={this.state.responseWord}//
                     textChange={this.responseTextHandler}
                     submitAnswerHandler={this.submitAnswer}
-                    //responseHandler={this.updateGame}//
-                    countDown={this.state.countDown} />
-                <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon} id={this.state.gameRef} answersPl1={this.state.answersPl1} answersPl2={this.state.answersPl2}/>
+                    /* //responseHandler={this.updateGame}// */
+                    /* countDown={this.state.countDown} */ />
+                    <div>
+                 {this.state.loading ? <div>getting data</div>  :  <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon} id={this.state.gameRef} answersPl1={this.state.answersPl1} answersPl2={this.state.answersPl2}/>}
+                 </div>
             </div>
-        );
+        );//the gameover components sohud receive props from the state.
     }
 }
 
