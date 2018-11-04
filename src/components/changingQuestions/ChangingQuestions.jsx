@@ -74,9 +74,9 @@ function PlayerWait(props) {
 
 function QuestionCard(props) {
     //console.log(props.questionNumber);
-    console.log(questionList);
+    console.log(props);
     let question=questionList[props.questionNumber][0];
-    if (props.isQuestion) {
+     if (props.isQuestion) {
         return (
             <Paper>
                 <Grid container>
@@ -87,6 +87,7 @@ function QuestionCard(props) {
                         label="Word"
                         helperText="Enter your response here"
                         margin="normal"
+                        value={props.word}
                         variant="outlined"
                         onChange={props.textChange}
                         InputProps={{
@@ -160,7 +161,7 @@ class ChangingQuestions extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { isLandingPage: true, questionsList: questionList, gameStarted: false, isWaiting: false, countDown: 60,questionNumber:0 };
+        this.state = { isLandingPage: true, questionsList: questionList, gameStarted: false, isWaiting: false, countDown: 60,questionNumber:0,responseWord:"" };
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
@@ -214,7 +215,7 @@ class ChangingQuestions extends React.Component {
 
     responseTextHandler(e) {
         e.preventDefault();
-        this.responseWord = e.target.value;
+        this.setState({responseWord : e.target.value});
     
     }
 
@@ -233,17 +234,18 @@ class ChangingQuestions extends React.Component {
 
     submitAnswer(e) {
         console.log("Submiting answer and changing question");
-        
-        
-        this.client.query(
-            q.Update(
-                q.Ref(q.Class("game"), this.state.gameRef),
-                { data: { word: this.responseWord, turn: (this.state.turnMod + 1) % 2 } }))
-            .then((ret) => console.log(ret))
+        console.log("props",this.props,"state",this.state);
+        console.log("answersList in submitAnswer",this.answersList);
+        this["answersList"][`answer${this.state.questionNumber}`]=this.state.responseWord;
 
+        console.log("answersList in submitAnswer with new answer",this.answersList);
+        this.setState({ responseWord:"" });
+        console.log(this.state);
+       
+        this.setState({ questionNumber:this.state.questionNumber+1 });
         this.setState({ countDown: 60 });
         this.setState({ currentTurn: false, isWaiting: true })
-        this.setPoller()
+       
     }
 
    /*   submitAnswer(e) {
@@ -414,7 +416,7 @@ render() {
                 questionNumber={this.state.questionNumber}
                 isTurn={this.state.currentTurn}//
                 question={this.state.question}
-                word={this.state.word}//
+                word={this.state.responseWord}//
                 textChange={this.responseTextHandler}
                 submitAnswerHandler={this.submitAnswer}
                 //responseHandler={this.updateGame}//
