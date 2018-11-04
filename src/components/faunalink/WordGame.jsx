@@ -59,17 +59,24 @@ function LandingPage(props) {
 
 function PlayerWait(props) {
     let countDownTimer = null;
+    let displayString = null;
 
     if(props.gameStart) {
-        countDownTimer = <LinearProgress variant="determinate" value={((props.countDown)/60)*100} /> 
+        countDownTimer = <LinearProgress variant="determinate" value={((props.countDown)/60)*100} />
+        displayString = <h5>Waiting for player response</h5>
+    } else {
+        countDownTimer = <LinearProgress variant="indeterminate" />
+        displayString = (<span><h5>{props.customMessage}</h5><br/>Waiting for player to join</span>)
     }
 
     if(props.isWaiting) {
         return (
-            <Paper>
-                <h5>Waiting for player response {props.customMessage}</h5>
-                {countDownTimer}
-            </Paper>
+            <Grid container spacing={24}>
+                <Paper style={containerStyle}>
+                    {displayString}
+                    {countDownTimer}
+                </Paper>
+            </Grid>
         );
     } else {
         return null;
