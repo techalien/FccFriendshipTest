@@ -79,6 +79,44 @@ function PlayerWait(props) {
 function PlayerResponse(props) {
 
     if(props.isTurn) {
+        let responseField;
+        if(props.isValid) {
+            responseField = (<TextField
+                label="Word"
+                helperText="Enter your response here"
+                value={props.textFieldValue}
+                margin="normal"
+                variant="outlined"
+                onChange={props.textChange}
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">
+                    <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
+                        Submit
+                    </Button>
+                    </InputAdornment>
+                }}
+            />)
+        } else {
+            let errorMessage = props.responseUsed? "This word has been used!" : "First letter is invalid!"
+
+            responseField = (<TextField
+                error
+                label="Word"
+                value={props.textFieldValue}
+                helperText={errorMessage}
+                margin="normal"
+                variant="outlined"
+                onChange={props.textChange}
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">
+                    <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
+                        Submit
+                    </Button>
+                    </InputAdornment>
+                }}
+            />)
+        }
+
         return (
                 <Grid container>
                     <Paper style={containerStyle}>
@@ -87,20 +125,7 @@ function PlayerResponse(props) {
                         </Grid>
 
                         <Grid item>
-                            <TextField
-                                label="Word"
-                                helperText="Enter your response here"
-                                margin="normal"
-                                variant="outlined"
-                                onChange={props.textChange}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">
-                                    <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
-                                        Submit
-                                    </Button>
-                                    </InputAdornment>
-                                }}
-                            />
+                            {responseField}
                         </Grid>
 
                         <Grid item>
@@ -135,7 +160,7 @@ class WordGame extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {isLandingPage: true, gameStarted: false, isWaiting:false, countDown: 60};
+        this.state = {isLandingPage: true, gameStarted: false, isWaiting:false, countDown: 60, usedWords: []};
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
@@ -183,7 +208,24 @@ class WordGame extends React.Component {
     responseTextHandler(e) {
         e.preventDefault();
         
-        this.responseWord = e.target.value;
+        this.setState({responseWord: e.target.value})
+
+        let currentWord = this.state.word;
+        let validChar = currentWord.charAt(currentWord.length - 1);
+        let currentChar = e.target.value.charAt(0);
+
+        if(validChar.toLowerCase() === currentChar.toLowerCase()) {
+            this.setState({responseValid: true}) 
+
+            let wordList = this.state.usedWords;
+            if(wordList.includes(e.target.value.toLowerCase())) {
+                this.setState({responseValid: false, responseUsed: true})
+            } else {
+                this.setState({responseValid: true, responseUsed: false})
+            }
+        } else {
+            this.setState({responseValid: false})
+        }
     }
 
     endGame() {
@@ -202,15 +244,20 @@ class WordGame extends React.Component {
     updateGame(e) {
         console.log("Updating game");
 
-        this.client.query(
-            q.Update(
-              q.Ref(q.Class("game"), this.state.gameRef),
-              { data: { word: this.responseWord, turn: (this.state.turnMod + 1)%2}}))
-          .then((ret) => console.log(ret))
-        
-        this.setState({countDown: 60});
-        this.setState({currentTurn: false, isWaiting: true})
-        this.setPoller()
+        if(this.state.responseValid) {
+            this.client.query(
+                q.Update(
+                q.Ref(q.Class("game"), this.state.gameRef),
+                { data: { word: this.state.responseWord, turn: (this.state.turnMod + 1)%2}}))
+            .then((ret) => console.log(ret))
+            
+            this.setState({countDown: 60});
+            this.setState({currentTurn: false, isWaiting: true, responseWord: ""})
+            this.setState((state, props) => {
+                usedWords: state.usedWords.push(this.state.responseWord.toLowerCase())
+            })
+            this.setPoller()
+        }
     }
 
     checkForUpdate() {
@@ -225,7 +272,10 @@ class WordGame extends React.Component {
                     this.waitMessage = "";
                     this.setState({countDown:60})
                     clearInterval(this.poller);
-                    this.setState({gameStarted: true, word: refObject.data.word, isWaiting: false, currentTurn: true});
+                    this.setState({gameStarted: true, word: refObject.data.word, isWaiting: false, currentTurn: true, responseValid: true});
+                    this.setState((state, props) => {
+                        usedWords: state.usedWords.push(refObject.data.word.toLowerCase())
+                    })
                 } else if (refObject.data.gameWon) {
                     clearInterval(this.poller);
                     clearInterval(this.countDownTimer)
@@ -298,7 +348,10 @@ class WordGame extends React.Component {
                     word={this.state.word}
                     textChange={this.responseTextHandler}
                     responseHandler={this.updateGame}
-                    countDown = {this.state.countDown}/>
+                    countDown = {this.state.countDown}
+                    isValid = {this.state.responseValid}
+                    textFieldValue = {this.state.responseWord}
+                    responseUsed = {this.state.responseUsed}/>
                 <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon}/>
             </div>
         );
