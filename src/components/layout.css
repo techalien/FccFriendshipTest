@@ -219,6 +219,7 @@ img {
   margin-bottom: 1.45rem;
 }
 h1 {
+  text-align: center;
   margin-left: 0;
   margin-right: 0;
   margin-top: 0;
@@ -375,6 +376,7 @@ dd {
   margin-bottom: 1.45rem;
 }
 p {
+  text-align: center;
   margin-left: 0;
   margin-right: 0;
   margin-top: 0;
@@ -622,3 +624,24 @@ pre tt:after {
     font-size: 100%;
   }
 }
+
+/* additional selections */
+.link {
+  text-decoration: none;
+}
+
+.game-selection {
+  text-align: center;
+}
+
+.divider {
+  width:15px;
+  height:auto;
+  display:inline-block;
+}
+
+i {
+  margin-left: 10px;
+}
+
+

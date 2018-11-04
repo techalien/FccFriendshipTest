@@ -1,15 +1,21 @@
 {
   "name": "gatsby-starter-default",
-  "description": "Gatsby default starter",
+  "description": "FCC Friendly Questions",
   "version": "1.0.0",
-  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "author": "FCC Friendly Questions team",
   "dependencies": {
-    "gatsby": "^2.0.19",
+    "@material-ui/core": "^3.3.2",
+    "@material-ui/icons": "^3.0.1",
+    "faunadb": "^2.5.2",
+    "gatsby": "^2.0.38",
+    "gatsby-cli": "^2.4.4",
     "gatsby-image": "^2.0.15",
+    "gatsby-link": "^2.0.6",
     "gatsby-plugin-manifest": "^2.0.5",
     "gatsby-plugin-offline": "^2.0.5",
     "gatsby-plugin-react-helmet": "^3.0.0",
-    "gatsby-plugin-sharp": "^2.0.7",
+    "gatsby-plugin-sharp": "^2.0.11",
+    "gatsby-react-router-scroll": "^2.0.1",
     "gatsby-source-filesystem": "^2.0.4",
     "gatsby-transformer-sharp": "^2.1.4",
     "react": "^16.5.1",
@@ -32,6 +38,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gatsbyjs/gatsby-starter-default"
+    "url": "https://github.com/techalien/FccFriendshipTest"
   }
 }
