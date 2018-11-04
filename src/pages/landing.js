@@ -15,7 +15,7 @@ const LandingPage = () => (
         <div class="game-selection">
             <Button variant="contained"><Link class="link" to="/page-2/">WORD GAME</Link><i class="fas fa-file-word"></i></Button>
             <div class="divider"/>
-            <Button variant="contained"><Link class="link" to="/">FRIENDSHIP TEST</Link><i class="fas fa-user-friends"></i></Button>
+            <Button variant="contained"><Link class="link" to="/page-3/">FRIENDSHIP TEST</Link><i class="fas fa-user-friends"></i></Button>
         </div> 
     </Layout>
 )
