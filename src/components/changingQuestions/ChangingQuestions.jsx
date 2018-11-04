@@ -94,8 +94,7 @@ function QuestionCard(props) {
             </Paper>
         );
     } else if ((props.isQuestion) && (Array.isArray(answer))) {
-      
-        return (
+          return (
             <Paper>
                 <Grid container>
                     <span>{question}</span>
@@ -119,7 +118,7 @@ function QuestionCard(props) {
                                 {answer[4] && <MenuItem value={answer[4]}>`{answer[4]}`</MenuItem>}
 
                             </Select>
-                            <FormHelperText>Required</FormHelperText>
+                            <FormHelperText>Pick answer from dropdown list</FormHelperText>
                         </FormControl>
                     </form>
                                     <Button variant="outlined" color="secondary" onClick={props.submitAnswerHandler}>
@@ -134,14 +133,31 @@ function QuestionCard(props) {
 }
 
 function GameOver(props) {
+    console.log("props in game over",props);
     if (props.gameOver) {
         if (props.gameWon) {
+            let friendA=Object.values(props.answersPl1);
+            let friendB=Object.values(props.answersPl2);
+            let totalAnswers=friendA.length;
+            let correctAnswers=0;
+            let score="";
+
+            function compare(a,b){
+                for (let i=0;i<totalAnswers;i++){
+                    if (a[i]===b[i]){
+                        correctAnswers=correctAnswers+1;
+                    }
+                }
+            }
+            compare(friendA,friendB);
             return (
-                <span>You won!!! :)</span>
+               
+                <p>Your knew {correctAnswers} out of {totalAnswers}</p>
             );
         } else {
             return (
-                <span>You lost. :(</span>
+               
+                <p>Email this id to your friend:  {props.id} </p>
             );
         }
     } else {
@@ -208,7 +224,7 @@ class ChangingQuestions extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { isLandingPage: true, questionsList: questionList, gameStarted: false, isWaiting: false, countDown: 60, questionNumber: 0, responseWord: "" };
+        this.state = {isLandingPage: true, questionsList: questionList, gameStarted: false, isWaiting: false, countDown: 60, questionNumber: 0, responseWord: "" };
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
@@ -250,7 +266,7 @@ class ChangingQuestions extends React.Component {
             .then((ret) => console.log(ret)) */
 
        this.addFriend();
-        this.setState({ gameWon: false, currentTurn: false, gameOver: true,isQuestion:false });
+        this.setState({ currentTurn: false, gameOver: true,isQuestion:false });
     }
 
     submitAnswer(e) {
@@ -288,7 +304,7 @@ class ChangingQuestions extends React.Component {
                         this.answersA = refObject.data;
                         /* answersA=client.query(q.Get(q.Ref(q.Class("friends"), "214905968405774853"))); */
                         console.log(this.answersA);
-                        this.setState({ gameStarted: true, countDown: 60, isLandingPage: false, isWaiting: true, turnMod: 1 });
+                        this.setState({  answersPl2:this.answerA,gameWon: true, gameStarted: true, countDown: 60, isLandingPage: false, isWaiting: true, turnMod: 1 });
                         this.createGame(e);
                     }
                 })
@@ -304,14 +320,19 @@ class ChangingQuestions extends React.Component {
         client = new faunadb.Client({ secret: FAUNA_SECRET });
         //e.preventDefault();
         console.log('new filled quiz');
-       
+        if (this.state.gameRef==0){
+            this.setState({answersPl1:this.answersList});
+        }
         client.query(
             q.Create(
                 q.Class("friends"),
                 {
                     data: this.answersList
                 }))
-            .then((ret) => console.log(ret))
+            .then((ret) => {console.log(ret);
+            this.setState({ gameRef: ret.ref.value.id});
+            console.log("game ref at end game",this.state.gameRef);
+            })
     }
 
     /* addFriend(e) {
@@ -483,7 +504,7 @@ class ChangingQuestions extends React.Component {
                     submitAnswerHandler={this.submitAnswer}
                     //responseHandler={this.updateGame}//
                     countDown={this.state.countDown} />
-                <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon} />
+                <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon} id={this.state.gameRef} answersPl1={this.state.answersPl1} answersPl2={this.state.answersPl2}/>
             </div>
         );
     }
