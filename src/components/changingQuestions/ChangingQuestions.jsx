@@ -21,7 +21,7 @@ import { FAUNA_SECRET } from '../../constants';
 
 var client = {};
 
-const questionList = [["question2-do you like books", ["yes", "no", "maybe"]], ["question1-your age?", 100], ["question3-do you like dogs", ["yes", "no"]], ["question4 - how much do you like to study", ["very much","a lot", "so and so", "not at all"]], ["your name is", "FriendA"], ["Send the challenge to (email)?", "testmail@nonexistant.com"]];
+const questionList = [["your name is", "FriendA"],["Send the challenge to (email)?", "testmail@nonexistant.com"],["question2-do you like books", ["yes", "no", "maybe"]], ["question1-your age?", 100], ["question3-do you like dogs", ["yes", "no"]], ["question4 - how much do you like to study", ["very much","a lot", "so and so", "not at all"]]];
 
 const buttonStyle = {
     verticalAlign: 'middle',
@@ -39,7 +39,6 @@ function LandingPage(props) {
                         <Grid item xs>
                             <Button variant="contained" color="primary" onClick={props.createGameHandler}>Start the Quiz</Button>
                         </Grid>
-
                         <Grid item xs={8}>
                             <TextField
                                 label="Game ID"
@@ -57,25 +56,6 @@ function LandingPage(props) {
                     </Grid>
                 </Paper>
             </div>
-        );
-    } else {
-        return null;
-    }
-}
-
-function PlayerWait(props) {
-    let countDownTimer = null;
-
-    if (props.gameStart) {
-        countDownTimer = <LinearProgress variant="determinate" value={((props.countDown) / 60) * 100} />
-    }
-
-    if (props.isWaiting) {
-        return (
-            <Paper>
-                <h5>Waiting for player response {props.customMessage}</h5>
-                {countDownTimer}
-            </Paper>
         );
     } else {
         return null;
@@ -129,40 +109,64 @@ function QuestionCard(props) {
                                 value={answer[0]}
                                 onChange={props.textChange}
                                 inputProps={{
-                                    id: 'answer-required',
-                                         }}
-                                
+                                    id: 'answer-required',}}
                                 //className={classes.selectEmpty}
                             >
-                                
                                 {answer[0] && <MenuItem value={answer[0]}>`{answer[0]}`</MenuItem>}
                                 {answer[1] && <MenuItem value={answer[1]}>`{answer[1]}`</MenuItem>}
                                 {answer[2] && <MenuItem value={answer[2]}>`{answer[2]}`</MenuItem>}
                                 {answer[3] && <MenuItem value={answer[3]}>`{answer[3]}`</MenuItem>}
                                 {answer[4] && <MenuItem value={answer[4]}>`{answer[4]}`</MenuItem>}
-                                
-                                
+
                             </Select>
                             <FormHelperText>Required</FormHelperText>
-                            
                         </FormControl>
-                        
                     </form>
-                    
                                     <Button variant="outlined" color="secondary" onClick={props.submitAnswerHandler}>
                                         Submit
                             </Button>
-                               
                 </Grid>
-
             </Paper>
         );
-    }
-
-    else {
+    } else {
         return null;
     }
 }
+
+function GameOver(props) {
+    if (props.gameOver) {
+        if (props.gameWon) {
+            return (
+                <span>You won!!! :)</span>
+            );
+        } else {
+            return (
+                <span>You lost. :(</span>
+            );
+        }
+    } else {
+        return null;
+    }
+}
+
+/* function PlayerWait(props) {
+    let countDownTimer = null;
+
+    if (props.gameStart) {
+        countDownTimer = <LinearProgress variant="determinate" value={((props.countDown) / 60) * 100} />
+    }
+
+    if (props.isWaiting) {
+        return (
+            <Paper>
+                <h5>Waiting for player response {props.customMessage}</h5>
+                {countDownTimer}
+            </Paper>
+        );
+    } else {
+        return null;
+    }
+} */
 
 
 /* 
@@ -198,21 +202,7 @@ function PlayerResponse(props) {
     }
 }
  */
-function GameOver(props) {
-    if (props.gameOver) {
-        if (props.gameWon) {
-            return (
-                <span>You won!!! :)</span>
-            );
-        } else {
-            return (
-                <span>You lost. :(</span>
-            );
-        }
-    } else {
-        return null;
-    }
-}
+
 
 class ChangingQuestions extends React.Component {
 
@@ -222,47 +212,21 @@ class ChangingQuestions extends React.Component {
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
-        //this.updateGame = this.updateGame.bind(this);
         this.submitAnswer = this.submitAnswer.bind(this);
         this.responseTextHandler = this.responseTextHandler.bind(this);
-        this.setPoller = this.setPoller.bind(this);
-        this.countDownState = this.countDownState.bind(this);
         this.endGame = this.endGame.bind(this);
-        this.startCountDown = this.startCountDown.bind(this);
         this.addFriend = this.addFriend.bind(this);
-        this.checkForUpdate = this.checkForUpdate.bind(this);
-
+        //this.checkForUpdate = this.checkForUpdate.bind(this);
+        //this.updateGame = this.updateGame.bind(this);
+        //this.setPoller = this.setPoller.bind(this);
+        //this.countDownState = this.countDownState.bind(this);
+        //this.startCountDown = this.startCountDown.bind(this);
 
         this.client = new faunadb.Client({ secret: FAUNA_SECRET });
         this.answersA = {};
         this.answersList = {};
     }
 
-
-    setPoller() {
-        this.poller = setInterval(
-            () => this.checkForUpdate(),
-            1000
-        )
-    }
-
-    startCountDown() {
-        this.countDownTimer = setInterval(
-            () => this.countDownState(),
-            1000
-        )
-    }
-
-    countDownState() {
-        console.log("Counting down");
-        this.setState((state, props) => ({
-            countDown: state.countDown - 1,
-        }))
-
-        if (this.state.countDown === 0 && this.state.currentTurn && this.state.gameStarted) {
-            this.endGame()
-        }
-    }
 
     joinGameRefInputHandler(e) {
         e.preventDefault();
@@ -294,94 +258,23 @@ class ChangingQuestions extends React.Component {
         console.log("props", this.props, "state", this.state);
         console.log("answersList in submitAnswer", this.answersList);
         this["answersList"][`answer${this.state.questionNumber}`] = this.state.responseWord;
-
         console.log("answersList in submitAnswer with new answer", this.answersList);
         this.setState({ responseWord: "" });
         console.log(this.state);
-
         this.setState({ questionNumber: this.state.questionNumber + 1 });
         this.setState({ countDown: 60 });
         this.setState({ currentTurn: false, isWaiting: true })
-
-    }
-
-    /*   submitAnswer(e) {
-         console.log("Submiting answer and changing question");
-         
-         this.client.query(
-             q.Update(
-                 q.Ref(q.Class("game"), this.state.gameRef),
-                 { data: { word: this.responseWord, turn: (this.state.turnMod + 1) % 2 } }))
-             .then((ret) => console.log(ret))
- 
-         this.setState({ countDown: 60 });
-         this.setState({ currentTurn: false, isWaiting: true })
-         this.setPoller()
-     } */
-
-    checkForUpdate() {
-        let turn = this.state.turnMod;
-
-        console.log("Checking for update");
-        this.client.query(q.Get(q.Ref(
-            q.Class("game"), this.state.gameRef))).then((refObject) => {
-                let updatedTurn = refObject.data.turn;
-                console.log(updatedTurn);
-                if (updatedTurn == turn) {
-                    this.waitMessage = "";
-                    this.setState({ countDown: 60 })
-                    clearInterval(this.poller);
-                    this.setState({ gameStarted: true, word: refObject.data.word, isWaiting: false, currentTurn: true });
-                } else if (refObject.data.gameWon) {
-                    clearInterval(this.poller);
-                    clearInterval(this.countDownTimer)
-                    this.setState({ gameWon: true, gameOver: true, isWaiting: false })
-                }
-            })
     }
 
     createGame(e) {
         e.preventDefault();
         console.log("Creating game");
-
-        //let refObject;
-
         this.setState({ gameRef: 0, isLandingPage: false, turnMod: 0, isWaiting: false, isQuestion: true });
-
     }
-
-    /*  createGame(e) {
-         e.preventDefault();
-         console.log("Creating game");
- 
-         //let refObject;
-         this.client.query(
-             q.Create(
-                 q.Class("game"),
-                 {
-                     data: {
-                         "turn": 1,
-                         "word": "Start",
-                         "responseRef": "",
-                         "gameStarted": false
-                     }
-                 }
-             )
-         ).then((refObject) => {
-             console.log("Game ID Created: " + refObject.ref.value.id);
- 
-             this.waitMessage = "Ask friend to join at " + refObject.ref.value.id;
-             this.setState({ gameRef: refObject.ref.value.id, isLandingPage: false, turnMod: 0, isWaiting: true });
-             //this.setPoller();
-         })
-     } */
-
-
 
     joinGame(e) {
         e.preventDefault();
         console.log("Joining game " + this.state.gameRef);
-
         var p1 = new Promise((resolve, reject) => {
             this.client.query(q.Get(q.Ref(
                 q.Class("friends"), this.state.gameRef))).then((refObject) => {
@@ -396,34 +289,12 @@ class ChangingQuestions extends React.Component {
                     }
                 })
         });
-
         p1.then((ret) => {
             console.log(ret);
             console.log(this.answersA);
             this.setState({ gameStarted: true, countDown: 60, isLandingPage: false, isWaiting: true, turnMod: 1 });
-            this.setPoller();
         });
     }
-
-
-
-    /* joinGame(e) {
-        e.preventDefault();
-        console.log("Joining game " + this.state.gameRef);
-    
-        this.client.query(q.Get(q.Ref(
-            q.Class("game"), this.state.gameRef))).then((refObject) => {
-                if(refObject.ref.value.id === this.state.gameRef) {
-                    this.client.query(
-                        q.Update(
-                          q.Ref(q.Class("game"), this.state.gameRef),
-                          { data: { gameStarted: true, turn: 0} }))
-                      .then((ret) => console.log(ret))
-                    this.setState({gameStarted: true, countDown:60, isLandingPage: false, isWaiting:true, turnMod:1});
-                    this.setPoller();
-                }
-            })
-    */
 
     addFriend(e) {
         client = new faunadb.Client({ secret: FAUNA_SECRET });
@@ -456,6 +327,123 @@ class ChangingQuestions extends React.Component {
         // this.startCountDown();
     }
 
+    
+   /*  setPoller() {
+        this.poller = setInterval(
+            () => this.checkForUpdate(),
+            1000
+        )
+    } */
+
+   /*  startCountDown() {
+        this.countDownTimer = setInterval(
+            () => this.countDownState(),
+            1000
+        )
+    } */
+
+    /* countDownState() {
+        console.log("Counting down");
+        this.setState((state, props) => ({
+            countDown: state.countDown - 1,
+        }))
+
+        if (this.state.countDown === 0 && this.state.currentTurn && this.state.gameStarted) {
+            this.endGame()
+        }
+    } */
+
+
+
+    /*   submitAnswer(e) {
+         console.log("Submiting answer and changing question");
+         
+         this.client.query(
+             q.Update(
+                 q.Ref(q.Class("game"), this.state.gameRef),
+                 { data: { word: this.responseWord, turn: (this.state.turnMod + 1) % 2 } }))
+             .then((ret) => console.log(ret))
+ 
+         this.setState({ countDown: 60 });
+         this.setState({ currentTurn: false, isWaiting: true })
+         this.setPoller()
+     } */
+
+   /*  checkForUpdate() {
+        let turn = this.state.turnMod;
+
+        console.log("Checking for update");
+        this.client.query(q.Get(q.Ref(
+            q.Class("game"), this.state.gameRef))).then((refObject) => {
+                let updatedTurn = refObject.data.turn;
+                console.log(updatedTurn);
+                if (updatedTurn == turn) {
+                    this.waitMessage = "";
+                    this.setState({ countDown: 60 })
+                    clearInterval(this.poller);
+                    this.setState({ gameStarted: true, word: refObject.data.word, isWaiting: false, currentTurn: true });
+                } else if (refObject.data.gameWon) {
+                    clearInterval(this.poller);
+                    clearInterval(this.countDownTimer)
+                    this.setState({ gameWon: true, gameOver: true, isWaiting: false })
+                }
+            })
+    } */
+
+   
+
+    /*  createGame(e) {
+         e.preventDefault();
+         console.log("Creating game");
+ 
+         //let refObject;
+         this.client.query(
+             q.Create(
+                 q.Class("game"),
+                 {
+                     data: {
+                         "turn": 1,
+                         "word": "Start",
+                         "responseRef": "",
+                         "gameStarted": false
+                     }
+                 }
+             )
+         ).then((refObject) => {
+             console.log("Game ID Created: " + refObject.ref.value.id);
+ 
+             this.waitMessage = "Ask friend to join at " + refObject.ref.value.id;
+             this.setState({ gameRef: refObject.ref.value.id, isLandingPage: false, turnMod: 0, isWaiting: true });
+             //this.setPoller();
+         })
+     } */
+
+
+
+   
+
+
+
+    /* joinGame(e) {
+        e.preventDefault();
+        console.log("Joining game " + this.state.gameRef);
+    
+        this.client.query(q.Get(q.Ref(
+            q.Class("game"), this.state.gameRef))).then((refObject) => {
+                if(refObject.ref.value.id === this.state.gameRef) {
+                    this.client.query(
+                        q.Update(
+                          q.Ref(q.Class("game"), this.state.gameRef),
+                          { data: { gameStarted: true, turn: 0} }))
+                      .then((ret) => console.log(ret))
+                    this.setState({gameStarted: true, countDown:60, isLandingPage: false, isWaiting:true, turnMod:1});
+                    this.setPoller();
+                }
+            })
+    */
+
+    
+
     render() {
         return (
             <div>
@@ -464,11 +452,11 @@ class ChangingQuestions extends React.Component {
                     createGameHandler={this.createGame}
                     joinGameHandler={this.joinGame}
                     joinText={this.joinGameRefInputHandler} />
-                <PlayerWait
+                {/* <PlayerWait
                     isWaiting={this.state.isWaiting}
                     customMessage={this.waitMessage}
                     gameStart={this.state.gameStarted}
-                    countDown={this.state.countDown} />
+                    countDown={this.state.countDown} /> */}
                 <QuestionCard
                     isQuestion={this.state.isQuestion}
                     questionNumber={this.state.questionNumber}
