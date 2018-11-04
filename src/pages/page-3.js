@@ -10,11 +10,11 @@ import Layout from '../components/layout'
 
 const ThirdPage = () => (
   <Layout>
-    <h1>Hi </h1>
+   
     <p>FCC FRIENDSHIP TEST</p>
-    <p>JAMstack Hackathon's friendliest project!</p>
+    
     <div style={{ maxWidth: '300px', marginBottom: '1.45rem' }}>
-<p>test for fauna connection</p>
+
 <ChangingQuestions />
 
 <Image />

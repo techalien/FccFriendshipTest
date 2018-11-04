@@ -12,6 +12,9 @@ import { FAUNA_SECRET } from '../../constants';
 
 var client = {};
 
+const questionList=[["question2-do you like books", ["yes", "no", "maybe"]], ["question1-your age?", 100], ["question3-do you like dogs", ["yes", "no"]], ["question4 - how much do you like to study", ["a lot", "so and so", "not at all"]], ["your name is", "FriendA"], ["Send the challenge to (email)?", "testmail@nonexistant.com"]];
+    /* this.questionList = [["question1-your age?",100],["question2-do you like books",["yes","no"]],["question3-do you like dogs",["yes","no"]],["question4 - how much do you like to study",["a lot","so and so","not at all"]],["your name is","FriendA"],["Send the challenge to (email)?","testmail@yahoo.com"]]; */
+
 const buttonStyle = {
     verticalAlign: 'middle',
     alignItems: 'center'
@@ -24,7 +27,7 @@ function LandingPage(props) {
                 <Paper>
                 <Grid container spacing={24}>
                     <Grid item xs>
-                        <Button variant="contained" color="primary" onClick={props.createGameHandler}>Create Game</Button>
+                        <Button variant="contained" color="primary" onClick={props.createGameHandler}>Start the Quiz</Button>
                     </Grid>
 
                     <Grid item xs={8}>
@@ -36,7 +39,7 @@ function LandingPage(props) {
                             onChange={props.joinText}
                             InputProps={{
                                 endAdornment: <InputAdornment position="end">
-                                <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Join</Button>
+                                <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Go</Button>
                                 </InputAdornment>
                             }}
                         />
@@ -121,7 +124,7 @@ class ChangingQuestions extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {isLandingPage: true, gameStarted: false, isWaiting:false, countDown: 60};
+        this.state = {isLandingPage: true, questionsList:questionList,answerList:{} ,gameStarted: false, isWaiting:false, countDown: 60};
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
