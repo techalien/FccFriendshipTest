@@ -6,41 +6,50 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import CloudUploadIcon from '@material-ui/core/Icon';
+import Divider from '@material-ui/core/Divider';
 
 const FAUNA_SECRET = "fnAC-5___YACBQKbu91CfAcKoeYCYxO6_WX1mS29";
 
-const buttonStyle = {
-    verticalAlign: 'middle',
-    alignItems: 'center'
+const containerStyle = {
+    padding: '10px',
+    textAlign: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+};
+
+const elementStyle = {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    paddingBottom: '16px'
 };
 
 function LandingPage(props) {
-    if(props.render) {
+     if(props.render) {
         return (
             <div>
-                <Paper>
                 <Grid container spacing={24}>
-                    <Grid item xs>
-                        <Button variant="contained" color="primary" onClick={props.createGameHandler}>Create Game</Button>
-                    </Grid>
-
-                    <Grid item xs={8}>
-                        <TextField
-                            label="Game ID"
-                            helperText="Enter ID here"
-                            margin="normal"
-                            variant="outlined"
-                            onChange={props.joinText}
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">
-                                <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Join</Button>
-                                </InputAdornment>
-                            }}
-                        />
-                    </Grid>
+                    <Paper style={containerStyle}>
+                        <Grid style={elementStyle} item xs>
+                            <Button  variant="contained" color="primary" onClick={props.createGameHandler}>Create Game</Button>
+                        </Grid>
+                        <Divider />
+                        <Grid item xs>
+                            <TextField 
+                                label="Game ID"
+                                helperText="Enter ID here"
+                                margin="normal"
+                                variant="outlined"
+                                onChange={props.joinText}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">
+                                    <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Join</Button>
+                                    </InputAdornment>
+                                }}
+                            />
+                        </Grid>
+                    </Paper>
                 </Grid>
-                </Paper>
+                
             </div>
         );
     } else {
@@ -68,35 +77,42 @@ function PlayerWait(props) {
 }
 
 function PlayerResponse(props) {
+
     if(props.isTurn) {
         return (
-            <Paper>
                 <Grid container>
-                    <span>Word given to you is {props.word}</span>
+                    <Paper style={containerStyle}>
+                        <Grid item>
+                            <span>Word given to you is {props.word}</span>
+                        </Grid>
+
+                        <Grid item>
+                            <TextField
+                                label="Word"
+                                helperText="Enter your response here"
+                                margin="normal"
+                                variant="outlined"
+                                onChange={props.textChange}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">
+                                    <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
+                                        Submit
+                                    </Button>
+                                    </InputAdornment>
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item>
+                            <span>You have {props.countDown} seconds remaining.</span>
+                            <LinearProgress variant="determinate" value={((props.countDown)/60)*100} />
+                        </Grid> 
+                    </Paper>
                 </Grid>
-                <Grid container>
-                <TextField
-                    label="Word"
-                    helperText="Enter your response here"
-                    margin="normal"
-                    variant="outlined"
-                    onChange={props.textChange}
-                    InputProps={{
-                        endAdornment: <InputAdornment position="end">
-                        <Button variant="outlined" color="secondary" onClick={props.responseHandler}>
-                            Submit
-                        </Button>
-                        </InputAdornment>
-                    }}
-                />
-                </Grid>
-                <span>You have {props.countDown} seconds remaining.</span>
-                <LinearProgress variant="determinate" value={((props.countDown)/60)*100} /> 
-            </Paper>
         );
-    } else {
-        return null;
-    }
+    } 
+
+    return null;
 }
 
 function GameOver(props) {
@@ -110,9 +126,9 @@ function GameOver(props) {
                 <span>You lost. :(</span>
             );
         }
-    } else {
-        return null;
-    }
+    } 
+
+    return null;
 }
 
 class WordGame extends React.Component {
@@ -166,6 +182,7 @@ class WordGame extends React.Component {
 
     responseTextHandler(e) {
         e.preventDefault();
+        
         this.responseWord = e.target.value;
     }
 
@@ -214,7 +231,7 @@ class WordGame extends React.Component {
                     clearInterval(this.countDownTimer)
                     this.setState({gameWon: true, gameOver: true, isWaiting: false})
                 }
-            })
+            });
     }
 
     createGame(e) {
@@ -238,7 +255,7 @@ class WordGame extends React.Component {
             this.waitMessage = "Ask friend to join at " + refObject.ref.value.id;
             this.setState({gameRef: refObject.ref.value.id, isLandingPage: false, turnMod:0, isWaiting:true});
             this.setPoller();
-        })
+        });
     }
 
     joinGame(e) {
