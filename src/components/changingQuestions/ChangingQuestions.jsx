@@ -72,6 +72,42 @@ function PlayerWait(props) {
     }
 }
 
+function QuestionCard(props) {
+    //console.log(props.questionNumber);
+    console.log(questionList);
+    let question=questionList[props.questionNumber][0];
+    if (props.isQuestion) {
+        return (
+            <Paper>
+                <Grid container>
+                    <span>{question}</span>
+                </Grid>
+                <Grid container>
+                    <TextField
+                        label="Word"
+                        helperText="Enter your response here"
+                        margin="normal"
+                        variant="outlined"
+                        onChange={props.textChange}
+                        InputProps={{
+                            endAdornment: <InputAdornment position="end">
+                                <Button variant="outlined" color="secondary" onClick={props.submitAnswerHandler}>
+                                    Submit
+                        </Button>
+                            </InputAdornment>
+                        }}
+                    />
+                </Grid>
+                
+            </Paper>
+        );
+    } else {
+        return null;
+    }
+}
+
+
+/* 
 function PlayerResponse(props) {
     if (props.isTurn) {
         return (
@@ -103,7 +139,7 @@ function PlayerResponse(props) {
         return null;
     }
 }
-
+ */
 function GameOver(props) {
     if (props.gameOver) {
         if (props.gameWon) {
@@ -124,20 +160,24 @@ class ChangingQuestions extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { isLandingPage: true, questionsList: questionList, answerList: {}, gameStarted: false, isWaiting: false, countDown: 60 };
+        this.state = { isLandingPage: true, questionsList: questionList, gameStarted: false, isWaiting: false, countDown: 60,questionNumber:0 };
         this.createGame = this.createGame.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.joinGameRefInputHandler = this.joinGameRefInputHandler.bind(this);
-        this.updateGame = this.updateGame.bind(this);
+        //this.updateGame = this.updateGame.bind(this);
+        this.submitAnswer = this.submitAnswer.bind(this);
         this.responseTextHandler = this.responseTextHandler.bind(this);
         this.setPoller = this.setPoller.bind(this);
         this.countDownState = this.countDownState.bind(this);
         this.endGame = this.endGame.bind(this);
         this.startCountDown = this.startCountDown.bind(this);
         this.addFriend = this.addFriend.bind(this);
+        this.checkForUpdate = this.checkForUpdate.bind(this);
+        
 
         this.client = new faunadb.Client({ secret: FAUNA_SECRET });
         this.answersA={};
+        this.answersList={};
     }
 
     
@@ -175,6 +215,7 @@ class ChangingQuestions extends React.Component {
     responseTextHandler(e) {
         e.preventDefault();
         this.responseWord = e.target.value;
+    
     }
 
     endGame() {
@@ -190,9 +231,10 @@ class ChangingQuestions extends React.Component {
         this.setState({ gameWon: false, currentTurn: false, gameOver: true });
     }
 
-    updateGame(e) {
-        console.log("Updating game");
-
+    submitAnswer(e) {
+        console.log("Submiting answer and changing question");
+        
+        
         this.client.query(
             q.Update(
                 q.Ref(q.Class("game"), this.state.gameRef),
@@ -203,6 +245,20 @@ class ChangingQuestions extends React.Component {
         this.setState({ currentTurn: false, isWaiting: true })
         this.setPoller()
     }
+
+   /*   submitAnswer(e) {
+        console.log("Submiting answer and changing question");
+        
+        this.client.query(
+            q.Update(
+                q.Ref(q.Class("game"), this.state.gameRef),
+                { data: { word: this.responseWord, turn: (this.state.turnMod + 1) % 2 } }))
+            .then((ret) => console.log(ret))
+
+        this.setState({ countDown: 60 });
+        this.setState({ currentTurn: false, isWaiting: true })
+        this.setPoller()
+    } */
 
     checkForUpdate() {
         let turn = this.state.turnMod;
@@ -230,6 +286,16 @@ class ChangingQuestions extends React.Component {
         console.log("Creating game");
 
         //let refObject;
+
+        this.setState({ gameRef: 0, isLandingPage: false, turnMod: 0, isWaiting: false, isQuestion:true });
+
+    }
+
+   /*  createGame(e) {
+        e.preventDefault();
+        console.log("Creating game");
+
+        //let refObject;
         this.client.query(
             q.Create(
                 q.Class("game"),
@@ -249,7 +315,9 @@ class ChangingQuestions extends React.Component {
             this.setState({ gameRef: refObject.ref.value.id, isLandingPage: false, turnMod: 0, isWaiting: true });
             //this.setPoller();
         })
-    }
+    } */
+
+
 
     joinGame(e) {
         e.preventDefault();
@@ -341,11 +409,15 @@ render() {
                 customMessage={this.waitMessage}
                 gameStart={this.state.gameStarted}
                 countDown={this.state.countDown} />
-            <PlayerResponse
-                isTurn={this.state.currentTurn}
-                word={this.state.word}
+            <QuestionCard
+                isQuestion={this.state.isQuestion}
+                questionNumber={this.state.questionNumber}
+                isTurn={this.state.currentTurn}//
+                question={this.state.question}
+                word={this.state.word}//
                 textChange={this.responseTextHandler}
-                responseHandler={this.updateGame}
+                submitAnswerHandler={this.submitAnswer}
+                //responseHandler={this.updateGame}//
                 countDown={this.state.countDown} />
             <GameOver gameOver={this.state.gameOver} gameWon={this.state.gameWon} />
         </div>
