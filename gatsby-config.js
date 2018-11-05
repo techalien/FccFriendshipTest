@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: 'FCC Game Factory',
+    title: 'FriendsOverJAM',
   },
   plugins: [
     'gatsby-plugin-react-helmet',
