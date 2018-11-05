@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import CloudUploadIcon from '@material-ui/core/Icon';
 
@@ -21,11 +22,23 @@ import { FAUNA_SECRET } from '../../constants';
 
 var client = {};
 
-const questionList = [["your name is", "FriendA"],["Send the challenge to (email)?", "testmail@nonexistant.com"],["question2-do you like books", ["yes", "no", "maybe"]], ["question1-your age?", 100], ["question3-do you like dogs", ["yes", "no"]], ["question4 - how much do you like to study", ["very much","a lot", "so and so", "not at all"]]];
+const questionList = [["What is your name?", "FriendA"],["Send the challenge to a friend(email)?", "testmail@nonexistant.com"],["Question 1: Do you like reading books?", ["yes", "no", "maybe"]], ["Question 2: What is your age?", 100], ["Question 3: Do you like dogs?", ["yes", "no"]], ["Question 4: How much do you like to study?", ["very much","a lot", "so and so", "not at all"]]];
 
 const buttonStyle = {
-    verticalAlign: 'middle',
-    alignItems: 'center'
+    marginLeft: '100px',
+};
+
+const containerStyle = {
+    padding: '10px',
+    textAlign: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+};
+
+const elementStyle = {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    paddingBottom: '16px'
 };
 
 //const { classes } = this.props;
@@ -34,11 +47,12 @@ function LandingPage(props) {
     if (props.render) {
         return (
             <div>
-                <Paper>
-                    <Grid container spacing={24}>
-                        <Grid item xs>
+                <Grid container spacing={24}>
+                    <Paper style={containerStyle}>
+                        <Grid style={elementStyle} item xs>
                             <Button variant="contained" color="primary" onClick={props.createGameHandler}>Start the Quiz</Button>
                         </Grid>
+                        <Divider />
                         <Grid item xs={8}>
                             <TextField
                                 label="Game ID"
@@ -48,13 +62,13 @@ function LandingPage(props) {
                                 onChange={props.joinText}
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">
-                                        <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Go</Button>
+                                        <Button variant="outlined" color="secondary" onClick={props.joinGameHandler}>Join</Button>
                                     </InputAdornment>
                                 }}
                             />
-                        </Grid>
-                    </Grid>
-                </Paper>
+                        </Grid>  
+                    </Paper>
+                </Grid>
             </div>
         );
     } else {
@@ -104,26 +118,25 @@ function QuestionCard(props) {
 
                         <FormControl required /* className={classes.formControl} */>
                            {/*  <InputLabel htmlFor="answer-required">Age</InputLabel> */}
-                            <Select id="possibleAnswers"
-                                value={answer[0]}
-                                onChange={props.textChange}
-                                inputProps={{
-                                    id: 'answer-required',}}
-                                //className={classes.selectEmpty}
-                            >
-                                {answer[0] && <MenuItem value={answer[0]}>`{answer[0]}`</MenuItem>}
-                                {answer[1] && <MenuItem value={answer[1]}>`{answer[1]}`</MenuItem>}
-                                {answer[2] && <MenuItem value={answer[2]}>`{answer[2]}`</MenuItem>}
-                                {answer[3] && <MenuItem value={answer[3]}>`{answer[3]}`</MenuItem>}
-                                {answer[4] && <MenuItem value={answer[4]}>`{answer[4]}`</MenuItem>}
-
-                            </Select>
+                           <div>
+                                <Select id="possibleAnswers"
+                                    value={answer[0]}
+                                    onChange={props.textChange}
+                                    inputProps={{
+                                        id: 'answer-required',}}
+                                    //className={classes.selectEmpty}
+                                >
+                                    {answer[0] && <MenuItem value={answer[0]}>`{answer[0]}`</MenuItem>}
+                                    {answer[1] && <MenuItem value={answer[1]}>`{answer[1]}`</MenuItem>}
+                                    {answer[2] && <MenuItem value={answer[2]}>`{answer[2]}`</MenuItem>}
+                                    {answer[3] && <MenuItem value={answer[3]}>`{answer[3]}`</MenuItem>}
+                                    {answer[4] && <MenuItem value={answer[4]}>`{answer[4]}`</MenuItem>}
+                                </Select>
+                                    <Button style={buttonStyle} variant="outlined" color="secondary" onClick={props.submitAnswerHandler}>Submit</Button>
+                              </div>
                             <FormHelperText>Pick answer from dropdown list</FormHelperText>
                         </FormControl>
-                    </form>
-                                    <Button variant="outlined" color="secondary" onClick={props.submitAnswerHandler}>
-                                        Submit
-                            </Button>
+                    </form>                        
                 </Grid>
             </Paper>
         );
